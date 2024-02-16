@@ -32,6 +32,8 @@ public class TreeNode<T, V> {
 
     public boolean isLeaf() { return values.isEmpty() == true; }
 
+    public boolean isInternal() { return values.isEmpty() == false; }
+
     public void put(V value, TreeNode<T, V> node) { values.put(value, node); }
 
     public boolean containsValue(V value) {

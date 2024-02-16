@@ -118,14 +118,29 @@ public class TreeTest {
         }
 
         @Test
-        public void testInsertSubsetPath() {
+        public void testInsertSubsetPathSmallerToLarger() {
+            Tree<String, String> tree = new Tree<>();
+
+            tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"));
+            tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"), new Pair<>("C", "C1"));
+
+            assertTrue(tree.getName("A").getValue("A1").getValue("B1").action);
+            assertTrue(tree.getName("A").getValue("A1").getValue("B1").getValue("C1").isLeaf);
+
+            System.out.println(tree);
+
+        }
+
+
+        @Test
+        public void testInsertSubsetPathLargerToSmaller() {
             Tree<String, String> tree = new Tree<>();
 
             tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"), new Pair<>("C", "C1"));
             tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"));
 
             assertTrue(tree.getName("A").getValue("A1").getValue("B1").getValue("C1").isLeaf);
-            assertTrue(tree.getName("A").getValue("A1").getValue("B1").action);
+            assertTrue(tree.getName("A").getValue("A1").action);
 
             System.out.println(tree);
 
@@ -346,18 +361,6 @@ public class TreeTest {
             assertFalse(tree.getName("A").action);
             assertTrue(tree.getName("A").getValue("A1").action);
 
-            System.out.println(tree);
-
-        }
-
-        @Test
-        public void testSubsetPathAction() {
-            Tree<String, String> tree = new Tree<>();
-
-            tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"), new Pair<>("C", "C1"));
-            tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"));
-
-            assertTrue(tree.getName("A").getValue("A1").getValue("B1").action);
             System.out.println(tree);
 
         }

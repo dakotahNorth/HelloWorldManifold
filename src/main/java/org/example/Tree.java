@@ -17,15 +17,12 @@ public class Tree<T, V> {
 
         TreeNode<T, V> rootNode = insertRootNodeIfAbsent(pairs);
 
-        insertInternalNodesIfAbsent(pairs, rootNode);
+        TreeNode<T, V> lastNode = insertInternalNodesIfAbsent(pairs, rootNode);
+
+
 
     }
 
-    @SafeVarargs
-    public final void insert(TreePath<T, V>... edges) {
-
-
-    }
 
     @SafeVarargs
     @NotNull
@@ -36,16 +33,35 @@ public class Tree<T, V> {
     }
 
 
-    private static <T, V> void insertInternalNodesIfAbsent(Pair<T, V>[] pairs, TreeNode<T, V> rootNode) {
+    private TreeNode<T, V> insertInternalNodesIfAbsent(Pair<T, V>[] pairs, TreeNode<T, V> rootNode) {
 
         TreeNode<T, V> current = rootNode;
+        TreeNode<T, V> previous = null;
+
         for (int i = 0; i < pairs.length - 1; i++) {
             T nextName = pairs[i + 1].first;
+            previous = current;
             current = current.computeIfAbsent(pairs[i].second, v -> new TreeNode<>(nextName));
             current.references++;
         }
 
+        insertLeafNodeIfAbsent(pairs, previous, current);
+
+
+        return current;
+
+    }
+
+    private static <T, V> void insertLeafNodeIfAbsent(Pair<T, V>[] pairs, TreeNode<T, V> previous, TreeNode<T, V> current) {
+
+        boolean pathEndsInternally = previous != null && previous.isInternal() && !current.isLeaf();
+        if (pathEndsInternally) {
+            current.action = true;
+            return;
+        }
+
         current.put(pairs[pairs.length - 1].second, new TreeNode<>());
+
     }
 
 
