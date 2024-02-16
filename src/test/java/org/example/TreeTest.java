@@ -13,10 +13,12 @@ import org.junit.jupiter.api.Nested;
 public class TreeTest {
 
     @Nested
-    class InsertPairTests {
+    class InsertPathTests {
+
+
 
         @Test
-        public void testInsertSinglePairsSinglePair() {
+        public void testInsertSinglePathSingleNode() {
             Tree<String, String> tree = new Tree<>();
 
             tree.insert(new Pair<>("A", "A1"));
@@ -46,7 +48,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testInsertSinglePairTwoPairs() {
+        public void testInsertSinglePathTwoNodes() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -62,7 +64,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testInsertSingleThreePairs() {
+        public void testInsertSinglePathThreeNodes() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -82,7 +84,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testInsertTwoPairsSinglePairSameTags() {
+        public void testInsertTwoPathsSingleNodeSameRoot() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -100,7 +102,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testInsertTwoPairsSinglePairDifferentTags() {
+        public void testInsertTwoPathsSingleNBodeDifferentRoots() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -114,14 +116,29 @@ public class TreeTest {
 
             System.out.println(tree);
         }
+
+        @Test
+        public void testInsertSubsetPath() {
+            Tree<String, String> tree = new Tree<>();
+
+            tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"), new Pair<>("C", "C1"));
+            tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"));
+
+            assertTrue(tree.getName("A").getValue("A1").getValue("B1").getValue("C1").isLeaf);
+            assertTrue(tree.getName("A").getValue("A1").getValue("B1").action);
+
+            System.out.println(tree);
+
+        }
+
     }
 
     @Nested
-    class ContainsPairsTests {
+    class ContainsPathTests {
 
 
         @Test
-        public void testContainsPairWithOnePair() {
+        public void testContainsPathSinglePathOneNode() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -133,7 +150,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testContainsPairWithTwoPairs() {
+        public void testContainsPathsFromTwoPathsSingleNodeDifferentRoots() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -146,7 +163,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testDoesNotContainPair() {
+        public void testDoesNotContainPathSingleNode() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -158,7 +175,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testContainsLongPair() {
+        public void testContainsPathWithThreeNodes() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -171,7 +188,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testDoesNotContainsLongerPair() {
+        public void testDoesNotContainsLongerPath() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -188,7 +205,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testDoesNotContainsSinceNeverAdded() {
+        public void testDoesNotContainPathSinceNeverAdded() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -199,6 +216,9 @@ public class TreeTest {
             assertFalse(tree.contains(pairs2));
 
         }
+
+
+
     }
 
     @Nested
@@ -206,7 +226,7 @@ public class TreeTest {
 
 
         @Test
-        public void testReferenceCountFirstPair() {
+        public void testReferenceCountFirstNode() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -221,7 +241,7 @@ public class TreeTest {
         }
 
         @Test
-        public void testReferenceSecondPair() {
+        public void testReferenceSecondNode() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -271,13 +291,15 @@ public class TreeTest {
 
         }
 
+
+
     }
 
     @Nested
-    class RemovePairs {
+    class RemovePaths {
 
         @Test
-        public void testRemoveSecondPair() {
+        public void testRemoveSecondPath() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -295,7 +317,7 @@ public class TreeTest {
 
 
         @Test
-        public void testRemoveAllPairs() {
+        public void testRemoveAllPath() {
 
             Tree<String, String> tree = new Tree<>();
 
@@ -308,13 +330,15 @@ public class TreeTest {
             System.out.println(tree);
         }
 
+
+
     }
 
     @Nested
     class Action {
 
         @Test
-        public void testInsertSinglePairsSinglePair() {
+        public void testInsertSinglePathSingleNode() {
             Tree<String, String> tree = new Tree<>();
 
             tree.insert(new Pair<>("A", "A1"));
@@ -327,14 +351,13 @@ public class TreeTest {
         }
 
         @Test
-        public void testSubsetPairsAction() {
+        public void testSubsetPathAction() {
             Tree<String, String> tree = new Tree<>();
 
             tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"), new Pair<>("C", "C1"));
             tree.insert(new Pair<>("A", "A1"), new Pair<>("B", "B1"));
 
             assertTrue(tree.getName("A").getValue("A1").getValue("B1").action);
-
             System.out.println(tree);
 
         }

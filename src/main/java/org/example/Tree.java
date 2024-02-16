@@ -22,6 +22,12 @@ public class Tree<T, V> {
     }
 
     @SafeVarargs
+    public final void insert(TreePath<T, V>... edges) {
+
+
+    }
+
+    @SafeVarargs
     @NotNull
     private TreeNode<T, V> insertRootNodeIfAbsent(Pair<T, V>... pairs) {
         TreeNode<T, V> current = rootTreeNodeMap.computeIfAbsent(pairs[0].first, TreeNode::new);
@@ -34,7 +40,7 @@ public class Tree<T, V> {
 
         TreeNode<T, V> current = rootNode;
         for (int i = 0; i < pairs.length - 1; i++) {
-            T nextName = pairs[i + 1].first; 
+            T nextName = pairs[i + 1].first;
             current = current.computeIfAbsent(pairs[i].second, v -> new TreeNode<>(nextName));
             current.references++;
         }
