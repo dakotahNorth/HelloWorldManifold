@@ -3,58 +3,117 @@ package org.example;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import manifold.ext.props.rt.api.var;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings({"PackageVisibleField", "FieldNotUsedInToString"})
-public class TreeNode<T, V> {
+public class TreeNode<V, E> {
 
-    public static final TreeNode Leaf = new TreeNode();
-
-    @var T name;
+    @var V value;
     @var int references;
     @var boolean action;
-    @var private Map<V, TreeNode<T, V>> values;
+    @var private Map<E, TreeNode<V, E>> edges;
+
 
     TreeNode() {
         action = true;
-        references = 1;
-        values = new HashMap<>();
+        references++;
+        edges = new HashMap<>();
 
     }
 
 
-    TreeNode(T tag) {
-        this.name = tag;
-        values = new HashMap<>();
+    TreeNode(V value) {
+        this.value = value;
+        edges = new HashMap<>();
     }
 
 
-    public boolean isLeaf() { return values.isEmpty() == true; }
+    TreeNode<V, E> insertNode(E edge, V newValue, E newEdge) {
 
-    public boolean isInternal() { return values.isEmpty() == false; }
+        if (isEndOfPath(edge)) {
+            return swapEndOfPathNode(edge, newValue, newEdge);
+        }
 
-    public void put(V value, TreeNode<T, V> node) { values.put(value, node); }
+        return insertInternalNode(edge, newValue, newEdge);
 
-    public boolean containsValue(V value) {
-        return values.containsKey(value);
     }
 
-    public TreeNode<T, V> getValue(V value) {
-        return values.get(value);
+
+    @NotNull
+    private TreeNode<V, E> swapEndOfPathNode(E edge, V newValue, E newEdge) {
+        var node = edges.get(edge);
+        node.value = newValue;
+        node.insertNode(newEdge);
+        return node;
     }
 
-    public TreeNode<T, V> removeValue(V value) {
-        return values.remove(value);
+
+    private boolean isEndOfPath(E edge) {
+        return edges.get(edge) != null && edges.get(edge).value == null;
     }
 
-    public boolean removed() {
-        return references == 0;
+
+    @NotNull
+    private TreeNode<V, E> insertInternalNode(E parentEdge, V value, E edge) {
+
+        TreeNode<V, E> node = edges.computeIfAbsent(parentEdge, v -> new TreeNode<>(value));
+        node.references++;
+        node.insertNode(edge);
+        return node;
+
     }
 
-    public TreeNode<T, V> computeIfAbsent(V v, Function<? super V, ? extends TreeNode<T, V>> mappingFunction) {
-        return values.computeIfAbsent(v, mappingFunction);
+
+    public TreeNode<V, E> insertNode(E edge) {
+
+        boolean shorterPathEndedOnExistingNode = getNode(edge) != null;
+
+        if (shorterPathEndedOnExistingNode) {
+            action = true;
+            return this;
+        }
+
+        return swapEndOfPathNode(edge);
+
     }
+
+
+    @NotNull
+    private TreeNode<V, E> swapEndOfPathNode(E edge) {
+
+        TreeNode<V, E> node = new TreeNode<>();
+        edges.put(edge, node);
+        return node;
+
+    }
+
+
+    public boolean hasEdge(E edge) {
+        return edges.containsKey(edge);
+    }
+
+
+    public TreeNode<V, E> getNode(E edge) {
+        return edges.get(edge);
+    }
+
+
+    public void removeNode(E edge) {
+
+        var node = edges.get(edge);
+
+        node.references--;
+
+        if (node.references == 0) {
+            edges.remove(edge);
+        }
+
+    }
+
+    public boolean isLeaf() { return edges.isEmpty(); }
+
+    public boolean isInternal() { return !edges.isEmpty(); }
 
     @Override
     public String toString() {
@@ -63,9 +122,9 @@ public class TreeNode<T, V> {
 
     private String toString(String indent) {
         StringBuilder sb = new StringBuilder(64);
-        sb.append(name).append("\n");
-        for (Entry<V, TreeNode<T, V>> entry : values.entrySet()) {
-            sb.append(indent).append(entry.getKey()).append(" : ").append(entry.getValue() == Leaf ? "LEAF" : entry.getValue().toString(indent + "\t")).append('\n');
+        sb.append(value).append("\n");
+        for (Entry<E, TreeNode<V, E>> entry : edges.entrySet()) {
+            sb.append(indent).append(entry.getKey()).append(" : ").append(entry.getValue().toString(indent + "\t")).append('\n');
         }
         return sb.toString();
     }

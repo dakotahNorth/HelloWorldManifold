@@ -2,155 +2,103 @@ package org.example;
 
 import java.util.HashMap;
 import java.util.Map;
-import manifold.ext.props.rt.api.var;
 import manifold.rt.api.util.Pair;
+import manifold.ext.props.rt.api.var;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class Tree<T, V> {
+public class Tree<V, E> {
 
-    @var private final Map<T, TreeNode<T,V>> rootTreeNodeMap = new HashMap<>();
+    @var private final Map<V, TreeNode<V, E>> rootTreeNodeMap = new HashMap<>();
+
 
 
     @SafeVarargs
-    public final void insert(Pair<T, V>... pairs) {
-
-        TreeNode<T, V> rootNode = insertRootNodeIfAbsent(pairs);
-
-        TreeNode<T, V> lastNode = insertInternalNodesIfAbsent(pairs, rootNode);
-
-
-
-    }
-
-
-    @SafeVarargs
-    @NotNull
-    private TreeNode<T, V> insertRootNodeIfAbsent(Pair<T, V>... pairs) {
-        TreeNode<T, V> current = rootTreeNodeMap.computeIfAbsent(pairs[0].first, TreeNode::new);
-        current.references++;
-        return current;
-    }
-
-
-    private TreeNode<T, V> insertInternalNodesIfAbsent(Pair<T, V>[] pairs, TreeNode<T, V> rootNode) {
-
-        TreeNode<T, V> current = rootNode;
-        TreeNode<T, V> previous = null;
-
-        for (int i = 0; i < pairs.length - 1; i++) {
-            T nextName = pairs[i + 1].first;
-            previous = current;
-            current = current.computeIfAbsent(pairs[i].second, v -> new TreeNode<>(nextName));
-            current.references++;
-        }
-
-        insertLeafNodeIfAbsent(pairs, previous, current);
-
-
-        return current;
-
-    }
-
-    private static <T, V> void insertLeafNodeIfAbsent(Pair<T, V>[] pairs, TreeNode<T, V> previous, TreeNode<T, V> current) {
-
-        boolean pathEndsInternally = previous != null && previous.isInternal() && !current.isLeaf();
-        if (pathEndsInternally) {
-            current.action = true;
+    public final void insertPath(Pair<V, E>... pairs) {
+        if (pairs.length == 0) {
             return;
         }
 
-        current.put(pairs[pairs.length - 1].second, new TreeNode<>());
+        TreeNode<V, E> node = insertRootNodeIfAbsent(pairs[0].first, pairs[0].second);
+
+        for (int i = 1; i < pairs.length; i++) {
+            E edge = pairs[i-1].second;
+            V newValue = pairs[i].first;
+            E newEdge = pairs[i].second;
+
+            node = node.insertNode(edge, newValue, newEdge);
+        }
+    }
+
+    @NotNull
+    private TreeNode<V, E> insertRootNodeIfAbsent(V value, E edge) {
+
+        TreeNode<V, E> node = rootTreeNodeMap.computeIfAbsent(value, v -> new TreeNode<>(value) );
+
+        node.references++;
+
+        node.insertNode(edge);
+
+        return node;
 
     }
 
 
-    public final boolean contains(Pair<T, V>... pairs) {
-
-        TreeNode<T, V> current = getRootNode(pairs);
+    @SafeVarargs
+    public final boolean containsPath(Pair<V, E>... pairs) {
+        TreeNode<V, E> current = getNode(pairs[0].first);
 
         for (int i = 0; current != null && i < pairs.length; i++) {
-            current = current.getValue(pairs[i].second);
+            current = current.getNode(pairs[i].second);
         }
 
         return current != null;
     }
 
-
     @SafeVarargs
-    public final void remove(Pair<T, V>... pairs) {
-
-        if (!contains(pairs)) {
+    public final void removePath(Pair<V, E>... pairs) {
+        if (!containsPath(pairs)) {
             return;
         }
 
-        TreeNode<T, V> rootNode = removeRootNodeWithoutReferences(pairs);
+        TreeNode<V, E> parent = null;
+        TreeNode<V, E> node = removeRootNode(pairs[0].first);
+        E edge = null;
 
-        if (rootNode.removed()) {
-            return;
+        for (int pairIndex = 0; node != null && pairIndex < pairs.length; pairIndex++) {
+            parent = node;
+            edge = pairs[pairIndex].second;
+            node = parent.getNode(edge);
+
+            parent.removeNode(edge);
         }
 
-        removeInternalNodesWithoutReferences(rootNode, pairs);
-
-
-    }
-
-
-    @SafeVarargs
-    @Nullable
-    private TreeNode<T, V> removeRootNodeWithoutReferences(Pair<T, V>... pairs) {
-
-        TreeNode<T, V> currentNode = getRootNode(pairs);
-
-        currentNode.references--;
-
-        if (currentNode.references == 0) {
-            rootTreeNodeMap.remove(pairs[0].first);
+        if (node != null) {
+            node.action = false;
         }
 
-        return currentNode;
     }
 
+    private TreeNode<V, E> removeRootNode(V value) {
 
-    private @Nullable TreeNode<T, V> getRootNode(Pair<T, V>[] pairs) {
-        return pairs.length == 0 ? null : rootTreeNodeMap.get(pairs[0].first);
-    }
+        TreeNode<V, E> node = rootTreeNodeMap.get(value);
 
+        node.references--;
 
-
-    @SafeVarargs
-    private void removeInternalNodesWithoutReferences(TreeNode<T, V> rootNode, Pair<T, V>... pairs) {
-
-        TreeNode<T, V> currentNode = rootNode;
-        TreeNode<T, V> previousNode = null;
-        V value = null;
-
-
-        for (int pairIndex = 0; currentNode != null && pairIndex < pairs.length; pairIndex++) {
-
-            previousNode = currentNode;
-            value = pairs[pairIndex].second;
-
-            currentNode = previousNode.getValue(value);
-            currentNode.references--;
-
-            removeNodeWithoutReferences(currentNode, previousNode, value);
+        if (node.references == 0) {
+            rootTreeNodeMap.remove(value);
         }
+
+        return node;
+
     }
 
-    private static <T, V> void removeNodeWithoutReferences(TreeNode<T, V> node, TreeNode<T, V> previousNode, V value) {
-        boolean removeNode = node.references == 0;
-        if (removeNode) {
-            previousNode.removeValue(value);
-        }
+    public TreeNode<V, E> getNode(V value) {
+        return rootTreeNodeMap.get(value);
     }
 
-
-
-    public TreeNode<T, V> getName(T name) {
-        return rootTreeNodeMap.get(name);
+    public boolean isEmpty() {
+        return rootTreeNodeMap.isEmpty();
     }
-
 
     public String toString() {
         return rootTreeNodeMap.isEmpty() ? "Empty tree" : rootTreeNodeMap.values().toString();
