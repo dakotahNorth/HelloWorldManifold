@@ -65,7 +65,7 @@ public class TreeNode<V, E> {
     }
 
 
-    public TreeNode<V, E> insertNode(E edge) {
+    TreeNode<V, E> insertNode(E edge) {
 
         boolean shorterPathEndedOnExistingNode = getNode(edge) != null;
 
@@ -119,7 +119,6 @@ public class TreeNode<V, E> {
     public String toString() {
         return toString("\t");
     }
-
     private String toString(String indent) {
         StringBuilder sb = new StringBuilder(64);
         sb.append(value).append("\n");
