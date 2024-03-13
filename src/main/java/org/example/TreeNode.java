@@ -55,7 +55,7 @@ public class TreeNode<V, E> {
 
 
     @NotNull
-    private TreeNode<V, E> insertInternalNode(E parentEdge, V value, E edge) {
+    TreeNode<V, E> insertInternalNode(E parentEdge, V value, E edge) {
 
         TreeNode<V, E> node = edges.computeIfAbsent(parentEdge, v -> new TreeNode<>(value));
         node.references++;
@@ -85,7 +85,6 @@ public class TreeNode<V, E> {
         TreeNode<V, E> node = new TreeNode<>();
         edges.put(edge, node);
         return node;
-
     }
 
 
