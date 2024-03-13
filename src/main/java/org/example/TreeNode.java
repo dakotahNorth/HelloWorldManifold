@@ -99,7 +99,7 @@ public class TreeNode<V, E> {
     }
 
 
-    public void removeNode(E edge) {
+    void removeNode(E edge) {
 
         var node = edges.get(edge);
 
