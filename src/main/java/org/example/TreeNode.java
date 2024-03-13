@@ -80,7 +80,7 @@ public class TreeNode<V, E> {
 
 
     @NotNull
-    private TreeNode<V, E> swapEndOfPathNode(E edge) {
+    TreeNode<V, E> swapEndOfPathNode(E edge) {
 
         TreeNode<V, E> node = new TreeNode<>();
         edges.put(edge, node);
