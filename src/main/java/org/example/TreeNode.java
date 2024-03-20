@@ -55,7 +55,7 @@ public class TreeNode<V, E> {
 
 
     @NotNull
-    private TreeNode<V, E> insertInternalNode(E parentEdge, V value, E edge) {
+    TreeNode<V, E> insertInternalNode(E parentEdge, V value, E edge) {
 
         TreeNode<V, E> node = edges.computeIfAbsent(parentEdge, v -> new TreeNode<>(value));
         node.references++;
@@ -65,7 +65,7 @@ public class TreeNode<V, E> {
     }
 
 
-    public TreeNode<V, E> insertNode(E edge) {
+    TreeNode<V, E> insertNode(E edge) {
 
         boolean shorterPathEndedOnExistingNode = getNode(edge) != null;
 
@@ -80,12 +80,11 @@ public class TreeNode<V, E> {
 
 
     @NotNull
-    private TreeNode<V, E> swapEndOfPathNode(E edge) {
+    TreeNode<V, E> swapEndOfPathNode(E edge) {
 
         TreeNode<V, E> node = new TreeNode<>();
         edges.put(edge, node);
         return node;
-
     }
 
 
@@ -99,7 +98,7 @@ public class TreeNode<V, E> {
     }
 
 
-    public void removeNode(E edge) {
+    void removeNode(E edge) {
 
         var node = edges.get(edge);
 
@@ -119,7 +118,6 @@ public class TreeNode<V, E> {
     public String toString() {
         return toString("\t");
     }
-
     private String toString(String indent) {
         StringBuilder sb = new StringBuilder(64);
         sb.append(value).append("\n");
